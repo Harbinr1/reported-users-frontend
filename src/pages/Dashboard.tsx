@@ -30,6 +30,7 @@ interface ReportedUser {
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Mock data - this will be replaced with API calls
   const reportedUsers: ReportedUser[] = [
@@ -79,7 +80,12 @@ const Dashboard = () => {
   );
 
   const handleSearch = () => {
-    setHasSearched(true);
+    setIsSearching(true);
+    // Simulate search animation delay
+    setTimeout(() => {
+      setHasSearched(true);
+      setIsSearching(false);
+    }, 800);
   };
 
   const getStatusBadge = (status: string) => {
@@ -109,7 +115,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -120,100 +126,133 @@ const Dashboard = () => {
         </div>
 
         {/* Search Interface */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              Search Users
-            </CardTitle>
-            <CardDescription>Search for reported users by initials, ID, or location</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Search by initials, id or location"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
-              </div>
-              <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Results Table - Only shown after search */}
-        {hasSearched && (
-          <Card>
+        <div className={`transition-all duration-700 ease-in-out ${
+          hasSearched ? 'transform -translate-y-4' : ''
+        }`}>
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Reported Users</CardTitle>
-              <CardDescription>
-                {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Search Users
+              </CardTitle>
+              <CardDescription>Search for reported users by initials, ID, or location</CardDescription>
             </CardHeader>
             <CardContent>
-              {filteredUsers.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User ID</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Reported By</TableHead>
-                      <TableHead>Reason</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-mono">{user.userId}</TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{user.userName}</p>
-                            <p className="text-sm text-gray-500">{user.userEmail}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>{user.reportedBy}</TableCell>
-                        <TableCell>{user.reportReason}</TableCell>
-                        <TableCell>{user.reportDate}</TableCell>
-                        <TableCell>{getSeverityBadge(user.severity)}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            {user.status === 'pending' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Ban className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-8">
-                  <Shield className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-                  <p className="text-gray-600">No reported users match your search criteria</p>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search by initials, id or location"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    disabled={isSearching}
+                  />
                 </div>
-              )}
+                <Button 
+                  onClick={handleSearch} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={isSearching}
+                >
+                  {isSearching ? (
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
+                  {isSearching ? 'Searching...' : 'Search'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Loading state */}
+        {isSearching && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+          </div>
+        )}
+
+        {/* Results Table - Only shown after search with smooth animation */}
+        {hasSearched && !isSearching && (
+          <div className="animate-fade-in">
+            <Card className={`transition-all duration-700 ease-out transform ${
+              hasSearched ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            }`}>
+              <CardHeader>
+                <CardTitle>Reported Users</CardTitle>
+                <CardDescription>
+                  {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {filteredUsers.length > 0 ? (
+                  <div className="animate-slide-in-from-bottom">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User ID</TableHead>
+                          <TableHead>User</TableHead>
+                          <TableHead>Reported By</TableHead>
+                          <TableHead>Reason</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Severity</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.map((user, index) => (
+                          <TableRow 
+                            key={user.id}
+                            className={`animate-fade-in opacity-0`}
+                            style={{ 
+                              animationDelay: `${index * 150}ms`,
+                              animationFillMode: 'forwards'
+                            }}
+                          >
+                            <TableCell className="font-mono">{user.userId}</TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{user.userName}</p>
+                                <p className="text-sm text-gray-500">{user.userEmail}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>{user.reportedBy}</TableCell>
+                            <TableCell>{user.reportReason}</TableCell>
+                            <TableCell>{user.reportDate}</TableCell>
+                            <TableCell>{getSeverityBadge(user.severity)}</TableCell>
+                            <TableCell>{getStatusBadge(user.status)}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                {user.status === 'pending' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 animate-fade-in">
+                    <Shield className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+                    <p className="text-gray-600">No reported users match your search criteria</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>
