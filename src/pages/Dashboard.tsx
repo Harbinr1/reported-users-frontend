@@ -100,12 +100,15 @@ const Dashboard = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Location</label>
-                <Input
-                  placeholder="City, State"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  icon={<MapPin className="h-4 w-4" />}
-                />
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="City, State"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">From Date</label>
