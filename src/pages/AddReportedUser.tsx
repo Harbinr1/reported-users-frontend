@@ -27,6 +27,7 @@ const AddReportedUser = () => {
       reportedBy: '',
       reportReason: '',
       description: '',
+      location: '',
       severity: 'medium',
     }
   });
@@ -144,22 +145,36 @@ const AddReportedUser = () => {
 
                   <FormField
                     control={form.control}
-                    name="severity"
+                    name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Severity</FormLabel>
+                        <FormLabel>Location</FormLabel>
                         <FormControl>
-                          <select {...field} className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                          </select>
+                          <Input placeholder="Enter location (e.g., New York, NY)" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="severity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Severity</FormLabel>
+                      <FormControl>
+                        <select {...field} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

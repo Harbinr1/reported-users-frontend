@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +22,7 @@ interface ReportedUser {
   reportedBy: string;
   reportReason: string;
   reportDate: string;
-  status: 'pending' | 'reviewed' | 'action_taken';
+  location: string;
   description: string;
   severity: 'low' | 'medium' | 'high';
 }
@@ -43,7 +42,7 @@ const Dashboard = () => {
       reportedBy: 'Sarah Smith',
       reportReason: 'Damaged vehicle',
       reportDate: '2024-01-15',
-      status: 'pending',
+      location: 'New York, NY',
       description: 'Returned the car with significant scratches and refused to acknowledge damage.',
       severity: 'high'
     },
@@ -55,7 +54,7 @@ const Dashboard = () => {
       reportedBy: 'John Doe',
       reportReason: 'Late return',
       reportDate: '2024-01-14',
-      status: 'reviewed',
+      location: 'Los Angeles, CA',
       description: 'Consistently returns vehicles late without prior notification.',
       severity: 'medium'
     },
@@ -67,7 +66,7 @@ const Dashboard = () => {
       reportedBy: 'Car Owner Co.',
       reportReason: 'No-show',
       reportDate: '2024-01-13',
-      status: 'action_taken',
+      location: 'Chicago, IL',
       description: 'Failed to show up for reserved rental without cancellation.',
       severity: 'low'
     }
@@ -87,19 +86,6 @@ const Dashboard = () => {
       setHasSearched(true);
       setIsSearching(false);
     }, 800);
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="border-yellow-500 text-yellow-700">Pending</Badge>;
-      case 'reviewed':
-        return <Badge variant="outline" className="border-blue-500 text-blue-700">Reviewed</Badge>;
-      case 'action_taken':
-        return <Badge variant="outline" className="border-green-500 text-green-700">Action Taken</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
   };
 
   const getSeverityBadge = (severity: string) => {
@@ -204,8 +190,8 @@ const Dashboard = () => {
                           <TableHead>Reported By</TableHead>
                           <TableHead>Reason</TableHead>
                           <TableHead>Date</TableHead>
+                          <TableHead>Location</TableHead>
                           <TableHead>Severity</TableHead>
-                          <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -229,22 +215,20 @@ const Dashboard = () => {
                             <TableCell>{user.reportedBy}</TableCell>
                             <TableCell>{user.reportReason}</TableCell>
                             <TableCell>{user.reportDate}</TableCell>
+                            <TableCell>{user.location}</TableCell>
                             <TableCell>{getSeverityBadge(user.severity)}</TableCell>
-                            <TableCell>{getStatusBadge(user.status)}</TableCell>
                             <TableCell>
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm">
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                {user.status === 'pending' && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Ban className="h-4 w-4" />
-                                  </Button>
-                                )}
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Ban className="h-4 w-4" />
+                                </Button>
                               </div>
                             </TableCell>
                           </TableRow>

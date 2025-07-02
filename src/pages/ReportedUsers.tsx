@@ -41,7 +41,7 @@ interface ReportedUser {
   reportedBy: string;
   reportReason: string;
   reportDate: string;
-  status: 'pending' | 'reviewed' | 'action_taken';
+  location: string;
   description: string;
   severity: 'low' | 'medium' | 'high';
 }
@@ -68,7 +68,7 @@ const ReportedUsers = () => {
       reportedBy: 'Sarah Smith',
       reportReason: 'Damaged vehicle',
       reportDate: '2024-01-15',
-      status: 'pending',
+      location: 'New York, NY',
       description: 'Returned the car with significant scratches and refused to acknowledge damage.',
       severity: 'high'
     },
@@ -80,7 +80,7 @@ const ReportedUsers = () => {
       reportedBy: 'John Doe',
       reportReason: 'Late return',
       reportDate: '2024-01-14',
-      status: 'reviewed',
+      location: 'Los Angeles, CA',
       description: 'Consistently returns vehicles late without prior notification.',
       severity: 'medium'
     },
@@ -92,7 +92,7 @@ const ReportedUsers = () => {
       reportedBy: 'Car Owner Co.',
       reportReason: 'No-show',
       reportDate: '2024-01-13',
-      status: 'action_taken',
+      location: 'Chicago, IL',
       description: 'Failed to show up for reserved rental without cancellation.',
       severity: 'low'
     }
@@ -103,19 +103,6 @@ const ReportedUsers = () => {
     report.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.reportReason.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="border-yellow-500 text-yellow-700">Pending</Badge>;
-      case 'reviewed':
-        return <Badge variant="outline" className="border-blue-500 text-blue-700">Reviewed</Badge>;
-      case 'action_taken':
-        return <Badge variant="outline" className="border-green-500 text-green-700">Action Taken</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
@@ -143,7 +130,7 @@ const ReportedUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:ml-64 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -173,12 +160,12 @@ const ReportedUsers = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {reportedUsers.filter(r => r.status === 'pending').length}
+                  <p className="text-sm text-gray-600">Total Reports</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {reportedUsers.length}
                   </p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-yellow-600" />
+                <AlertTriangle className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
@@ -214,8 +201,8 @@ const ReportedUsers = () => {
                   <TableHead>Reported By</TableHead>
                   <TableHead>Reason</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Severity</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -231,8 +218,8 @@ const ReportedUsers = () => {
                     <TableCell>{report.reportedBy}</TableCell>
                     <TableCell>{report.reportReason}</TableCell>
                     <TableCell>{report.reportDate}</TableCell>
+                    <TableCell>{report.location}</TableCell>
                     <TableCell>{getSeverityBadge(report.severity)}</TableCell>
-                    <TableCell>{getStatusBadge(report.status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
@@ -242,15 +229,13 @@ const ReportedUsers = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {report.status === 'pending' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Ban className="h-4 w-4" />
-                          </Button>
-                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -293,6 +278,10 @@ const ReportedUsers = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Reason</label>
                     <p className="text-sm">{selectedReport.reportReason}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Location</label>
+                    <p className="text-sm">{selectedReport.location}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Severity</label>
