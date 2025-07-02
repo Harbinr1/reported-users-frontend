@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import ReportedUsers from "./pages/ReportedUsers";
 import AddReportedUser from "./pages/AddReportedUser";
 import Profile from "./pages/Profile";
+import UserDetails from "./pages/UserDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
                   <Route path="/reported-users" element={<ReportedUsers />} />
                   <Route path="/add-reported-user" element={<AddReportedUser />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/user/:id" element={<UserDetails />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </div>

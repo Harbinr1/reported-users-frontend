@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +51,7 @@ const ReportedUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReport, setSelectedReport] = useState<ReportedUser | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -118,8 +120,11 @@ const ReportedUsers = () => {
   };
 
   const handleViewReport = (report: ReportedUser) => {
-    setSelectedReport(report);
-    setIsDialogOpen(true);
+    navigate(`/user/${report.id}`);
+  };
+
+  const handleUserClick = (userId: string) => {
+    navigate(`/user/${userId}`);
   };
 
   const handleTakeAction = (values: any) => {
@@ -130,7 +135,7 @@ const ReportedUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -208,7 +213,11 @@ const ReportedUsers = () => {
               </TableHeader>
               <TableBody>
                 {filteredReports.map((report) => (
-                  <TableRow key={report.id}>
+                  <TableRow 
+                    key={report.id}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleUserClick(report.id)}
+                  >
                     <TableCell>
                       <div>
                         <p className="font-medium">{report.userName}</p>
@@ -225,7 +234,10 @@ const ReportedUsers = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewReport(report)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewReport(report);
+                          }}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -233,6 +245,7 @@ const ReportedUsers = () => {
                           variant="outline"
                           size="sm"
                           className="text-red-600 hover:text-red-700"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <Ban className="h-4 w-4" />
                         </Button>

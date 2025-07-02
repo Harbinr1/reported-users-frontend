@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const navigate = useNavigate();
 
   // Mock data - this will be replaced with API calls
   const reportedUsers: ReportedUser[] = [
@@ -101,8 +102,12 @@ const Dashboard = () => {
     }
   };
 
+  const handleUserClick = (userId: string) => {
+    navigate(`/user/${userId}`);
+  };
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -199,11 +204,12 @@ const Dashboard = () => {
                         {filteredUsers.map((user, index) => (
                           <TableRow 
                             key={user.id}
-                            className={`animate-fade-in opacity-0`}
+                            className={`animate-fade-in opacity-0 cursor-pointer hover:bg-gray-50`}
                             style={{ 
                               animationDelay: `${index * 150}ms`,
                               animationFillMode: 'forwards'
                             }}
+                            onClick={() => handleUserClick(user.id)}
                           >
                             <TableCell className="font-mono">{user.userId}</TableCell>
                             <TableCell>
@@ -219,13 +225,21 @@ const Dashboard = () => {
                             <TableCell>{getSeverityBadge(user.severity)}</TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUserClick(user.id);
+                                  }}
+                                >
                                   <Eye className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   className="text-red-600 hover:text-red-700"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <Ban className="h-4 w-4" />
                                 </Button>
