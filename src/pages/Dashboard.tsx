@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Shield, Eye, Ban } from 'lucide-react';
+import { Search, Shield, Eye, Ban, Plus } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -118,9 +119,17 @@ const Dashboard = () => {
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-blue-600" />
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            </div>
+            <Link to="/add-reported-user">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Reported User
+              </Button>
+            </Link>
           </div>
           <p className="text-gray-600">Search and manage reported users</p>
         </div>
@@ -177,7 +186,7 @@ const Dashboard = () => {
           <div className="animate-fade-in">
             <Card className={`transition-all duration-700 ease-out transform ${
               hasSearched ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            }`}>
+            } bg-white border-0 shadow-lg`}>
               <CardHeader>
                 <CardTitle>Reported Users</CardTitle>
                 <CardDescription>

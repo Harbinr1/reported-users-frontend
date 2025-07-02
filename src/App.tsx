@@ -8,6 +8,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "./components/AppSidebar";
 import Dashboard from "./pages/Dashboard";
 import ReportedUsers from "./pages/ReportedUsers";
+import AddReportedUser from "./pages/AddReportedUser";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/reported-users" element={<ReportedUsers />} />
+                  <Route path="/add-reported-user" element={<AddReportedUser />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { User, Mail, Phone, MapPin, Edit, Save, Camera } from 'lucide-react';
+import { User, Mail, Edit, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 const Profile = () => {
@@ -48,16 +48,8 @@ const Profile = () => {
           {/* Profile Picture & Basic Info */}
           <Card>
             <CardContent className="p-6 text-center">
-              <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  JD
-                </div>
-                <Button
-                  size="icon"
-                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
+              <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                JD
               </div>
               <h3 className="text-xl font-semibold mb-1">John Doe</h3>
               <p className="text-gray-600 mb-2">john.doe@email.com</p>
@@ -204,57 +196,6 @@ const Profile = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Rental History */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Recent Rentals</CardTitle>
-            <CardDescription>Your rental history and upcoming bookings</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  id: 1,
-                  car: '2023 Toyota Camry',
-                  dates: 'Jan 15-17, 2024',
-                  status: 'Completed',
-                  amount: '$195'
-                },
-                {
-                  id: 2,
-                  car: '2022 Honda Civic',
-                  dates: 'Jan 10-12, 2024',
-                  status: 'Completed',
-                  amount: '$165'
-                },
-                {
-                  id: 3,
-                  car: '2023 BMW X3',
-                  dates: 'Jan 25-27, 2024',
-                  status: 'Upcoming',
-                  amount: '$360'
-                }
-              ].map((rental) => (
-                <div key={rental.id} className="flex justify-between items-center p-4 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{rental.car}</h4>
-                    <p className="text-sm text-gray-600">{rental.dates}</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge
-                      variant={rental.status === 'Completed' ? 'outline' : 'default'}
-                      className={rental.status === 'Upcoming' ? 'bg-blue-100 text-blue-800' : ''}
-                    >
-                      {rental.status}
-                    </Badge>
-                    <p className="text-sm font-medium mt-1">{rental.amount}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
