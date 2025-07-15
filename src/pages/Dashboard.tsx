@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,29 @@ const Dashboard = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
+
+  // Load saved state from sessionStorage on component mount
+  useEffect(() => {
+    const savedSearchTerm = sessionStorage.getItem('dashboardSearchTerm');
+    const savedHasSearched = sessionStorage.getItem('dashboardHasSearched');
+    
+    if (savedSearchTerm) {
+      setSearchTerm(savedSearchTerm);
+    }
+    
+    if (savedHasSearched === 'true') {
+      setHasSearched(true);
+    }
+  }, []);
+
+  // Save state to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('dashboardSearchTerm', searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dashboardHasSearched', hasSearched.toString());
+  }, [hasSearched]);
 
   // Mock data - this will be replaced with API calls
   const reportedUsers: ReportedUser[] = [
