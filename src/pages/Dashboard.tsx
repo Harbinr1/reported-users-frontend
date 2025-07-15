@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -135,13 +136,13 @@ const Dashboard = () => {
                 <Search className="h-5 w-5" />
                 Search Users
               </CardTitle>
-              <CardDescription>Search for reported users by initials, ID, or location</CardDescription>
+              <CardDescription>Search for reported users by initials, name, or location</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Search by initials, id or location"
+                    placeholder="Search by initials, name or location"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -190,7 +191,6 @@ const Dashboard = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>User ID</TableHead>
                           <TableHead>User</TableHead>
                           <TableHead>Reported By</TableHead>
                           <TableHead>Reason</TableHead>
@@ -211,7 +211,6 @@ const Dashboard = () => {
                             }}
                             onClick={() => handleUserClick(user.id)}
                           >
-                            <TableCell className="font-mono">{user.userId}</TableCell>
                             <TableCell>
                               <div>
                                 <p className="font-medium">{user.userName}</p>

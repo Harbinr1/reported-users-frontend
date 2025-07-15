@@ -1,39 +1,19 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { User, Mail, Edit, Save } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { User, Mail } from 'lucide-react';
 
 const Profile = () => {
-  const [isEditing, setIsEditing] = useState(false);
-
-  const form = useForm({
-    defaultValues: {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@email.com',
-      phone: '+1 (555) 123-4567',
-      address: '123 Main St, New York, NY 10001',
-      bio: 'Car enthusiast and responsible renter. Love exploring new places with reliable vehicles.',
-    }
-  });
-
-  const onSubmit = (values: any) => {
-    console.log('Profile updated:', values);
-    // API call would go here
-    setIsEditing(false);
+  const userInfo = {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@email.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Main St, New York, NY 10001',
+    bio: 'Car enthusiast and responsible renter. Love exploring new places with reliable vehicles.',
   };
 
   return (
@@ -41,7 +21,7 @@ const Profile = () => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
-          <p className="text-gray-600">Manage your account information and preferences</p>
+          <p className="text-gray-600">View your account information and preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -68,131 +48,49 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Profile Details Form */}
+          {/* Profile Details */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Update your personal details</CardDescription>
-                </div>
-                <Button
-                  variant={isEditing ? "default" : "outline"}
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  {isEditing ? <Save className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
-                  {isEditing ? 'Save' : 'Edit'}
-                </Button>
-              </div>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Your personal details</CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} disabled={!isEditing} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} disabled={!isEditing} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">First Name</label>
+                    <Input value={userInfo.firstName} disabled />
                   </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">Last Name</label>
+                    <Input value={userInfo.lastName} disabled />
+                  </div>
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="email" disabled={!isEditing} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Email</label>
+                  <Input value={userInfo.email} type="email" disabled />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Phone Number</label>
+                  <Input value={userInfo.phone} disabled />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Address</label>
+                  <Input value={userInfo.address} disabled />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Bio</label>
+                  <Textarea
+                    value={userInfo.bio}
+                    disabled
+                    rows={3}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={!isEditing} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={!isEditing} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="bio"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bio</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            disabled={!isEditing}
-                            placeholder="Tell us about yourself..."
-                            rows={3}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {isEditing && (
-                    <div className="flex gap-2 pt-4">
-                      <Button type="submit">Save Changes</Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditing(false)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
-                </form>
-              </Form>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
