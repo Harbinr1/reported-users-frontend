@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiConfig } from '../config/apiConfig';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Car, 
-  Shield, 
-  User, 
+import {
+  Car,
+  Shield,
+  User,
   LogOut
 } from 'lucide-react';
 import {
@@ -20,19 +21,63 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
+import { TOKEN_KEY } from '@/lib/auth';
+import { signOut } from '@/lib/auth';
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
+  isAdmin?: boolean;
+}
 
 const AppSidebar = () => {
   const location = useLocation();
-  const isAdmin = true; // This will come from auth context
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch(apiConfig.endpoints.users.me, {
+        method: 'GET',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+        localStorage.setItem('user', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.error('Profile fetch error:', err);
+    }
+  };
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Car },
-    { path: '/reported-users', label: 'Reported Users', icon: Shield, adminOnly: true },
+    { path: '/reported-users', label: 'Reported Users', icon: Shield },
+    { path: '/manager-dashboard', label: 'Manager', icon: Shield, adminOnly: true },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
-  const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
+  const filteredNavItems = navItems.filter(item => !item.adminOnly || user?.isAdmin);
 
   return (
     <Sidebar>
@@ -42,7 +87,7 @@ const AppSidebar = () => {
           <span className="text-xl font-bold">CarRental</span>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -51,18 +96,13 @@ const AppSidebar = () => {
               {filteredNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
-                
+
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link to={item.path} className="flex items-center gap-3">
                         <Icon className="h-5 w-5" />
                         <span>{item.label}</span>
-                        {item.label === 'Reported Users' && (
-                          <Badge variant="destructive" className="ml-auto">
-                            3
-                          </Badge>
-                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -76,16 +116,21 @@ const AppSidebar = () => {
       <SidebarFooter className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">JD</span>
+            <span className="text-white text-sm font-medium">
+              {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
+            </span>
           </div>
           <div>
-            <p className="font-medium">John Doe</p>
-            <p className="text-sm text-gray-500">{isAdmin ? 'Admin' : 'User'}</p>
+            <p className="font-medium">{user?.name || 'Loading...'}</p>
+            {user?.isAdmin && (
+              <p className="text-sm text-gray-500">Admin</p>
+            )}
           </div>
         </div>
         <Button
           variant="ghost"
           className="w-full justify-start text-gray-600 hover:text-red-600"
+          onClick={signOut}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out

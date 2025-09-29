@@ -1,15 +1,13 @@
 
 export interface ReportedUser {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  reportedBy: string;
-  reportReason: string;
-  reportDate: string;
+  id: string | null;
+  name: string;
+  idNumber: string;
+  date: string;
   location: string;
   description: string;
-  severity: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ActionFormData {

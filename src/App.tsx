@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,11 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "./components/AppSidebar";
 import Dashboard from "./pages/Dashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import ReportedUsers from "./pages/ReportedUsers";
 import AddReportedUser from "./pages/AddReportedUser";
 import Profile from "./pages/Profile";
 import UserDetails from "./pages/UserDetails";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import { isAuthenticated } from "@/lib/auth";
 
 const queryClient = new QueryClient();
 
@@ -23,22 +25,33 @@ const App = () => (
       <BrowserRouter>
         <SidebarProvider>
           <div className="min-h-screen flex w-full">
-            <AppSidebar />
-            <main className="flex-1">
-              <div className="p-4 lg:p-6">
-                <div className="mb-4">
-                  <SidebarTrigger />
-                </div>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/reported-users" element={<ReportedUsers />} />
-                  <Route path="/add-reported-user" element={<AddReportedUser />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/user/:id" element={<UserDetails />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </div>
-            </main>
+            {isAuthenticated() ? (
+              <>
+                <AppSidebar />
+                <main className="flex-1">
+                  <div className="p-4 lg:p-6">
+                    <div className="mb-4">
+                      <SidebarTrigger />
+                    </div>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/reported-users" element={<ReportedUsers />} />
+                      <Route path="/add-reported-user" element={<AddReportedUser />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/user/:id" element={<UserDetails />} />
+                      <Route path="/manager-dashboard" element={
+                        JSON.parse(localStorage.getItem('user') || '{}').isAdmin ? <ManagerDashboard /> : <NotFound />
+                      } />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                </main>
+              </>
+            ) : (
+              <Routes>
+                <Route path="/*" element={<Login />} />
+              </Routes>
+            )}
           </div>
         </SidebarProvider>
       </BrowserRouter>

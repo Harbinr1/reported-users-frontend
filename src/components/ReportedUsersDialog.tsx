@@ -25,10 +25,9 @@ interface ReportedUsersDialogProps {
   isOpen: boolean;
   onClose: () => void;
   selectedReport: ReportedUser | null;
-  onTakeAction: (values: ActionFormData) => void;
 }
 
-const ReportedUsersDialog = ({ isOpen, onClose, selectedReport, onTakeAction }: ReportedUsersDialogProps) => {
+const ReportedUsersDialog = ({ isOpen, onClose, selectedReport }: ReportedUsersDialogProps) => {
   const form = useForm<ActionFormData>({
     defaultValues: {
       action: '',
@@ -36,22 +35,12 @@ const ReportedUsersDialog = ({ isOpen, onClose, selectedReport, onTakeAction }: 
     }
   });
 
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'high':
-        return <Badge variant="destructive">High</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="border-orange-500 text-orange-700">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="border-gray-500 text-gray-700">Low</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
+  const getStatusBadge = (id: string | null) => {
+    return id ? <Badge variant="outline">Active</Badge> : <Badge variant="destructive">Pending</Badge>;
   };
 
   const handleTakeAction = (values: ActionFormData) => {
-    onTakeAction(values);
-    form.reset();
+  // Removed take action logic
   };
 
   return (
@@ -69,24 +58,20 @@ const ReportedUsersDialog = ({ isOpen, onClose, selectedReport, onTakeAction }: 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-700">Reported User</label>
-                <p className="text-sm">{selectedReport.userName}</p>
-                <p className="text-xs text-gray-500">{selectedReport.userEmail}</p>
+                <p className="text-sm">{selectedReport.name}</p>
+                <p className="text-xs text-gray-500">ID: {selectedReport.idNumber}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Reported By</label>
-                <p className="text-sm">{selectedReport.reportedBy}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Reason</label>
-                <p className="text-sm">{selectedReport.reportReason}</p>
+                <label className="text-sm font-medium text-gray-700">Report Date</label>
+                <p className="text-sm">{new Date(selectedReport.date).toLocaleDateString()}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Location</label>
                 <p className="text-sm">{selectedReport.location}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Severity</label>
-                <div className="mt-1">{getSeverityBadge(selectedReport.severity)}</div>
+                <label className="text-sm font-medium text-gray-700">Status</label>
+                <div className="mt-1">{getStatusBadge(selectedReport.id)}</div>
               </div>
             </div>
 

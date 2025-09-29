@@ -1,4 +1,4 @@
-
+import { apiConfig } from '../config/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,33 +16,32 @@ import {
 } from '@/components/ui/table';
 
 interface ReportedUser {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  reportedBy: string;
-  reportReason: string;
-  reportDate: string;
+  id: string | null;
+  name: string;
+  date: string;
+  idNumber: string;
   location: string;
   description: string;
-  severity: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
 }
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [reportedUsers, setReportedUsers] = useState<ReportedUser[]>([]);
   const navigate = useNavigate();
 
   // Load saved state from sessionStorage on component mount
   useEffect(() => {
     const savedSearchTerm = sessionStorage.getItem('dashboardSearchTerm');
     const savedHasSearched = sessionStorage.getItem('dashboardHasSearched');
-    
+
     if (savedSearchTerm) {
       setSearchTerm(savedSearchTerm);
     }
-    
+
     if (savedHasSearched === 'true') {
       setHasSearched(true);
     }
@@ -57,77 +56,33 @@ const Dashboard = () => {
     sessionStorage.setItem('dashboardHasSearched', hasSearched.toString());
   }, [hasSearched]);
 
-  // Mock data - this will be replaced with API calls
-  const reportedUsers: ReportedUser[] = [
-    {
-      id: '1',
-      userId: 'MJ001',
-      userName: 'Mike Johnson',
-      userEmail: 'mike.johnson@email.com',
-      reportedBy: 'Sarah Smith',
-      reportReason: 'Damaged vehicle',
-      reportDate: '2024-01-15',
-      location: 'New York, NY',
-      description: 'Returned the car with significant scratches and refused to acknowledge damage.',
-      severity: 'high'
-    },
-    {
-      id: '2',
-      userId: 'AB002',
-      userName: 'Alex Brown',
-      userEmail: 'alex.brown@email.com',
-      reportedBy: 'John Doe',
-      reportReason: 'Late return',
-      reportDate: '2024-01-14',
-      location: 'Los Angeles, CA',
-      description: 'Consistently returns vehicles late without prior notification.',
-      severity: 'medium'
-    },
-    {
-      id: '3',
-      userId: 'EW003',
-      userName: 'Emma Wilson',
-      userEmail: 'emma.wilson@email.com',
-      reportedBy: 'Car Owner Co.',
-      reportReason: 'No-show',
-      reportDate: '2024-01-13',
-      location: 'Chicago, IL',
-      description: 'Failed to show up for reserved rental without cancellation.',
-      severity: 'low'
-    }
-  ];
-
-  const filteredUsers = reportedUsers.filter(user => 
-    user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.reportedBy.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setIsSearching(true);
-    // Simulate search animation delay
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem("auth_token");
+      const res = await fetch(`${apiConfig.endpoints.reportedUsers.search}?NameOrIdNumber=${encodeURIComponent(searchTerm)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+      setReportedUsers(Array.isArray(data) ? data : [data]);
       setHasSearched(true);
+    } catch (err) {
+      setReportedUsers([]);
+      setHasSearched(true);
+    } finally {
       setIsSearching(false);
-    }, 800);
-  };
-
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'high':
-        return <Badge variant="destructive">High</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="border-orange-500 text-orange-700">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="border-gray-500 text-gray-700">Low</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
-  const handleUserClick = (userId: string) => {
-    navigate(`/user/${userId}`);
+  const getStatusBadge = (id: string | null) => {
+    return id ? <Badge variant="outline">Active</Badge> : <Badge variant="destructive">Pending</Badge>;
+  };
+
+  const handleUserClick = (userId: string | null) => {
+    if (userId) navigate(`/user/${userId}`);
   };
 
   return (
@@ -150,30 +105,29 @@ const Dashboard = () => {
         </div>
 
         {/* Search Interface */}
-        <div className={`transition-all duration-700 ease-in-out ${
-          hasSearched ? 'transform -translate-y-4' : ''
-        }`}>
+        <div className={`transition-all duration-700 ease-in-out ${hasSearched ? 'transform -translate-y-4' : ''
+          }`}>
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Search className="h-5 w-5" />
                 Search Users
               </CardTitle>
-              <CardDescription>Search for reported users by initials, name, or location</CardDescription>
+              <CardDescription>Search for reported users by name or ID number</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Search by initials, name or location"
+                    placeholder="Search by name or ID number"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     disabled={isSearching}
                   />
                 </div>
-                <Button 
-                  onClick={handleSearch} 
+                <Button
+                  onClick={handleSearch}
                   className="bg-blue-600 hover:bg-blue-700"
                   disabled={isSearching}
                 >
@@ -199,74 +153,46 @@ const Dashboard = () => {
         {/* Results Table - Only shown after search with smooth animation */}
         {hasSearched && !isSearching && (
           <div className="animate-fade-in">
-            <Card className={`transition-all duration-700 ease-out transform ${
-              hasSearched ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            } bg-white border-0 shadow-lg`}>
+            <Card className={`transition-all duration-700 ease-out transform ${hasSearched ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              } bg-white border-0 shadow-lg`}>
               <CardHeader>
                 <CardTitle>Reported Users</CardTitle>
-                <CardDescription>
-                  {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                {filteredUsers.length > 0 ? (
+                {reportedUsers.length > 0 ? (
                   <div className="animate-slide-in-from-bottom">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Reported By</TableHead>
-                          <TableHead>Reason</TableHead>
+                          <TableHead>Name</TableHead>
+                          <TableHead>ID Number</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Location</TableHead>
-                          <TableHead>Severity</TableHead>
-                          <TableHead>Actions</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredUsers.map((user, index) => (
-                          <TableRow 
-                            key={user.id}
+                        {reportedUsers.map((user, index) => (
+                          <TableRow
+                            key={user.id ?? index}
                             className={`animate-fade-in opacity-0 cursor-pointer hover:bg-gray-50`}
-                            style={{ 
+                            style={{
                               animationDelay: `${index * 150}ms`,
                               animationFillMode: 'forwards'
                             }}
                             onClick={() => handleUserClick(user.id)}
                           >
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">{user.userName}</p>
-                                <p className="text-sm text-gray-500">{user.userEmail}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell>{user.reportedBy}</TableCell>
-                            <TableCell>{user.reportReason}</TableCell>
-                            <TableCell>{user.reportDate}</TableCell>
+                            <TableCell>{user.name}</TableCell>
+                            <TableCell>{user.idNumber}</TableCell>
+                            <TableCell>{new Date(user.date).toLocaleDateString()}</TableCell>
                             <TableCell>{user.location}</TableCell>
-                            <TableCell>{getSeverityBadge(user.severity)}</TableCell>
                             <TableCell>
-                              <div className="flex gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleUserClick(user.id);
-                                  }}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-red-600 hover:text-red-700"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Ban className="h-4 w-4" />
-                                </Button>
+                              <div className="max-w-xs">
+                                <p className="text-sm truncate">{user.description}</p>
                               </div>
                             </TableCell>
+                            <TableCell>{getStatusBadge(user.id)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

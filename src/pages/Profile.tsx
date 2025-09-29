@@ -1,21 +1,91 @@
-
-import React from 'react';
+import { apiConfig } from '../config/apiConfig';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Settings, Calendar } from 'lucide-react';
+import { TOKEN_KEY } from '@/lib/auth';
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const Profile = () => {
-  const userInfo = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@email.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, New York, NY 10001',
-    bio: 'Car enthusiast and responsible renter. Love exploring new places with reliable vehicles.',
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        setError('Authentication required. Please log in.');
+        setLoading(false);
+        return;
+      }
+
+      // You'll need to replace this with the actual API endpoint for user profile
+      const response = await fetch(apiConfig.endpoints.users.me, {
+        method: 'GET',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        setError(`Failed to fetch profile: ${response.status} ${response.statusText}`);
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('Profile fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading profile...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-red-600">{error}</p>
+            <button
+              onClick={fetchUserProfile}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-4xl mx-auto">
@@ -29,20 +99,20 @@ const Profile = () => {
           <Card>
             <CardContent className="p-6 text-center">
               <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
-                JD
+                {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
               </div>
-              <h3 className="text-xl font-semibold mb-1">John Doe</h3>
-              <p className="text-gray-600 mb-2">john.doe@email.com</p>
+              <h3 className="text-xl font-semibold mb-1">{user?.name || 'Not provided'}</h3>
+              <p className="text-gray-600 mb-2">{user?.email || 'Not provided'}</p>
               <Badge variant="outline" className="mb-4">Verified User</Badge>
-              
+
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-center gap-2 text-gray-600">
-                  <Mail className="h-4 w-4" />
-                  <span>Member since Jan 2023</span>
+                  <Calendar className="h-4 w-4" />
+                  <span>Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-gray-600">
                   <User className="h-4 w-4" />
-                  <span>5 rentals completed</span>
+                  <span>Shield Watch User</span>
                 </div>
               </div>
             </CardContent>
@@ -56,39 +126,24 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">First Name</label>
-                    <Input value={userInfo.firstName} disabled />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">Last Name</label>
-                    <Input value={userInfo.lastName} disabled />
-                  </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Full Name</label>
+                  <Input value={user?.name || ''} disabled />
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Email</label>
-                  <Input value={userInfo.email} type="email" disabled />
+                  <Input value={user?.email || ''} type="email" disabled />
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Phone Number</label>
-                  <Input value={userInfo.phone} disabled />
+                  <Input value={user?.phoneNumber || ''} disabled />
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Address</label>
-                  <Input value={userInfo.address} disabled />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">Bio</label>
-                  <Textarea
-                    value={userInfo.bio}
-                    disabled
-                    rows={3}
-                  />
+                  <Input value={user?.address || ''} disabled />
                 </div>
               </div>
             </CardContent>

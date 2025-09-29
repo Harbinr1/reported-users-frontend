@@ -16,6 +16,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { signOut } from '@/lib/auth';
 
 const Navigation = () => {
   const location = useLocation();
@@ -79,6 +80,7 @@ const Navigation = () => {
         <Button
           variant="ghost"
           className="w-full justify-start text-gray-600 hover:text-red-600"
+          onClick={signOut}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out

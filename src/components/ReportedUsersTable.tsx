@@ -1,7 +1,6 @@
-
+import { apiConfig } from '../config/apiConfig';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -10,26 +9,59 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Shield, Eye, Ban } from 'lucide-react';
+import { Shield, Trash2 } from 'lucide-react';
 import { ReportedUser } from '@/types/ReportedUsersTypes';
+import { TOKEN_KEY } from '@/lib/auth';
+
 
 interface ReportedUsersTableProps {
   filteredReports: ReportedUser[];
-  onViewReport: (report: ReportedUser) => void;
-  onUserClick: (userId: string) => void;
+  onUserClick: (userId: string | null) => void;
+  onDelete?: (reportId: string | null) => void;
 }
 
-const ReportedUsersTable = ({ filteredReports, onViewReport, onUserClick }: ReportedUsersTableProps) => {
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'high':
-        return <Badge variant="destructive">High</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="border-orange-500 text-orange-700">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="border-gray-500 text-gray-700">Low</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
+const ReportedUsersTable = ({ filteredReports, onUserClick, onDelete }: ReportedUsersTableProps) => {
+  const handleDelete = async (reportId: string | null, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!reportId) {
+      alert('Cannot delete report without ID');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this report?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      
+      if (!token) {
+        alert('Authentication required. Please log in.');
+        return;
+      }
+
+      const response = await fetch(apiConfig.endpoints.reportedUsers.byId(reportId), {
+        method: 'DELETE',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('Report deleted successfully');
+        if (onDelete) {
+          onDelete(reportId);
+        }
+        // Refresh the page or call a callback to refresh data
+        window.location.reload();
+      } else {
+        alert(`Failed to delete report: ${response.status} ${response.statusText}`);
+      }
+    } catch (err) {
+      alert('Network error. Please check your connection and try again.');
+      console.error('Delete error:', err);
     }
   };
 
@@ -37,62 +69,50 @@ const ReportedUsersTable = ({ filteredReports, onViewReport, onUserClick }: Repo
     <Card>
       <CardHeader>
         <CardTitle>User Reports</CardTitle>
-        <CardDescription>
-          Review and take action on reported users
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Reported By</TableHead>
-              <TableHead>Reason</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>ID Number</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Severity</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredReports.map((report) => (
               <TableRow 
-                key={report.id}
+                key={report.id || Math.random()}
                 className="cursor-pointer hover:bg-gray-50"
                 onClick={() => onUserClick(report.id)}
               >
                 <TableCell>
                   <div>
-                    <p className="font-medium">{report.userName}</p>
-                    <p className="text-sm text-gray-500">{report.userEmail}</p>
+                    <p className="font-medium">{report.name}</p>
+                    <p className="text-sm text-gray-500">ID: {report.idNumber}</p>
                   </div>
                 </TableCell>
-                <TableCell>{report.reportedBy}</TableCell>
-                <TableCell>{report.reportReason}</TableCell>
-                <TableCell>{report.reportDate}</TableCell>
+                <TableCell>{report.idNumber}</TableCell>
+                <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
                 <TableCell>{report.location}</TableCell>
-                <TableCell>{getSeverityBadge(report.severity)}</TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onViewReport(report);
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Ban className="h-4 w-4" />
-                    </Button>
+                  <div className="max-w-xs">
+                    <p className="text-sm truncate">{report.description}</p>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={(e) => handleDelete(report.id, e)}
+                    disabled={!report.id}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -63,6 +63,10 @@ const ReportedUsers = () => {
     report.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleViewReport = (report: ReportedUser) => {
+    navigate(`/user/${report.id}`);
+  };
+
   const handleUserClick = (userId: string | null) => {
     if (userId) {
       navigate(`/user/${userId}`);
@@ -115,7 +119,6 @@ const ReportedUsers = () => {
         <ReportedUsersTable
           filteredReports={filteredReports}
           onUserClick={handleUserClick}
-          onDelete={fetchReportedUsers}
         />
 
         <ReportedUsersDialog
