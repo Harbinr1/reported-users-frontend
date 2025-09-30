@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { TOKEN_KEY } from '@/lib/auth';
+import { getToken } from '@/lib/auth'; // ✅ Changed from TOKEN_KEY to getToken
 
 interface ReportedUser {
   id: string;
@@ -30,7 +30,8 @@ const ManagerDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
       if (!token) {
         setError('Authentication required. Please log in.');
         setLoading(false);
@@ -59,7 +60,8 @@ const ManagerDashboard = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this draft?')) return;
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
       if (!token) {
         alert('Authentication required. Please log in.');
         return;
@@ -83,7 +85,8 @@ const ManagerDashboard = () => {
 
   const handleUpdateStatus = async (id: string) => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
       if (!token) {
         alert('Authentication required. Please log in.');
         return;

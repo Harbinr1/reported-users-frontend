@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Shield, Trash2 } from 'lucide-react';
 import { ReportedUser } from '@/types/ReportedUsersTypes';
-import { TOKEN_KEY } from '@/lib/auth';
-
+import { getToken } from '@/lib/auth'; // ✅ Changed from TOKEN_KEY to getToken
 
 interface ReportedUsersTableProps {
   filteredReports: ReportedUser[];
@@ -34,7 +33,8 @@ const ReportedUsersTable = ({ filteredReports, onUserClick, onDelete }: Reported
     }
 
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
       
       if (!token) {
         alert('Authentication required. Please log in.');

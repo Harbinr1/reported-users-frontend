@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getToken } from '@/lib/auth'; // ✅ Added getToken import
 
 interface ReportedUser {
   id: string | null;
@@ -59,7 +60,8 @@ const Dashboard = () => {
   const handleSearch = async () => {
     setIsSearching(true);
     try {
-      const token = localStorage.getItem("auth_token");
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem("auth_token")
+      const token = getToken();
       const res = await fetch(`${apiConfig.endpoints.reportedUsers.search}?NameOrIdNumber=${encodeURIComponent(searchTerm)}`, {
         headers: {
           'Authorization': `Bearer ${token}`

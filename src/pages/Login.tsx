@@ -1,6 +1,6 @@
 import { apiConfig } from '../config/apiConfig';
 import React, { useState } from 'react';
-import { TOKEN_KEY } from '@/lib/auth';
+import { TOKEN_KEY, isAuthenticated } from '@/lib/auth'; // ✅ Keep this one
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -42,6 +42,9 @@ export default function Login() {
 
       if (data.token) {
         localStorage.setItem(TOKEN_KEY, data.token);
+        console.log('Token stored with key:', TOKEN_KEY);
+        console.log('Token value in storage:', localStorage.getItem(TOKEN_KEY));
+        console.log('isAuthenticated():', isAuthenticated());
         window.location.href = '/';
       } else {
         throw new Error('No token received from server');

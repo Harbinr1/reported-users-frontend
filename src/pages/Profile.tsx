@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { User, Mail, Phone, MapPin, Settings, Calendar } from 'lucide-react';
-import { TOKEN_KEY } from '@/lib/auth';
+import { getToken } from '@/lib/auth'; // ✅ Changed from TOKEN_KEY to getToken
 
 interface UserProfile {
   id: string;
@@ -30,7 +30,8 @@ const Profile = () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
 
       if (!token) {
         setError('Authentication required. Please log in.');
@@ -38,7 +39,6 @@ const Profile = () => {
         return;
       }
 
-      // You'll need to replace this with the actual API endpoint for user profile
       const response = await fetch(apiConfig.endpoints.users.me, {
         method: 'GET',
         headers: {

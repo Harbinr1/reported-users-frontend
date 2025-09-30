@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { TOKEN_KEY } from '@/lib/auth';
+import { getToken } from '@/lib/auth'; // ✅ Changed from TOKEN_KEY to getToken
 
 const AddReportedUser = () => {
   const navigate = useNavigate();
@@ -36,7 +36,8 @@ const AddReportedUser = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
 
       if (!token) {
         setError('Authentication required. Please log in.');

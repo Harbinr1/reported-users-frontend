@@ -6,7 +6,7 @@ import { ReportedUser, ActionFormData } from '@/types/ReportedUsersTypes';
 import ReportedUsersStats from '@/components/ReportedUsersStats';
 import ReportedUsersTable from '@/components/ReportedUsersTable';
 import ReportedUsersDialog from '@/components/ReportedUsersDialog';
-import { TOKEN_KEY } from '@/lib/auth';
+import { getToken } from '@/lib/auth'; // ✅ Changed from TOKEN_KEY to getToken
 
 const ReportedUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +25,8 @@ const ReportedUsers = () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Using getToken() instead of localStorage.getItem(TOKEN_KEY)
+      const token = getToken();
 
       if (!token) {
         setError('Authentication required. Please log in.');
@@ -62,6 +63,10 @@ const ReportedUsers = () => {
     report.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewReport = (report: ReportedUser) => {
+    navigate(`/user/${report.id}`);
+  };
 
   const handleUserClick = (userId: string | null) => {
     if (userId) {
@@ -115,7 +120,6 @@ const ReportedUsers = () => {
         <ReportedUsersTable
           filteredReports={filteredReports}
           onUserClick={handleUserClick}
-          onDelete={fetchReportedUsers}
         />
 
         <ReportedUsersDialog

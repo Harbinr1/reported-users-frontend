@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { apiConfig } from '../config/apiConfig';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getToken } from '@/lib/auth'; // Keep this import
 import {
   Car,
   Shield,
@@ -22,7 +22,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { TOKEN_KEY } from '@/lib/auth';
 import { signOut } from '@/lib/auth';
 
 interface UserProfile {
@@ -46,9 +45,11 @@ const AppSidebar = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      // ✅ FIXED: Remove duplicate token declaration and use getToken()
+      const token = getToken();
 
       if (!token) {
+        console.log('No token found, user might not be logged in');
         return;
       }
 
@@ -64,6 +65,12 @@ const AppSidebar = () => {
         const data = await response.json();
         setUser(data);
         localStorage.setItem('user', JSON.stringify(data));
+      } else {
+        console.error('Failed to fetch user profile:', response.status);
+        // If unauthorized, redirect to login
+        if (response.status === 401) {
+          signOut();
+        }
       }
     } catch (err) {
       console.error('Profile fetch error:', err);
